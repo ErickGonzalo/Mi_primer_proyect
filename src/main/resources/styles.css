@@ -1,0 +1,29 @@
+.button {
+    -fx-cursor: hand;
+    -fx-background-radius: 5;
+    -fx-padding: 5 15 5 15;
+}
+
+.boton-agregar {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.boton-eliminar {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.boton-filtrar {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.boton-mostrar {
+    -fx-background-color: #ffc107;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
