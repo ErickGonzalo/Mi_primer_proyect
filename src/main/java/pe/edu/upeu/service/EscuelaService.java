@@ -27,7 +27,6 @@ public class EscuelaService {
                 .collect(Collectors.toList());
     }
     public boolean existeCodigo(String codigo) {
-        // Busca en la lista si alguna escuela ya tiene ese código
         return lista.stream()
                 .anyMatch(e -> e.getCodigo().equals(codigo));
     }

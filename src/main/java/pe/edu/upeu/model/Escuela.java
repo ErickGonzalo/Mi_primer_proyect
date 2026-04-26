@@ -17,7 +17,6 @@ public class Escuela {
         this.matricula = matricula;
     }
 
-    // Getters y Setters
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     public NivelEducativo getNivel() { return nivel; }

@@ -22,7 +22,6 @@ public class EscuelaController {
 
     @FXML
     public void initialize() {
-        // Vinculación de columnas con el modelo
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colNivel.setCellValueFactory(new PropertyValueFactory<>("nivel"));
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
@@ -31,7 +30,6 @@ public class EscuelaController {
 
         cbNivel.setItems(FXCollections.observableArrayList(NivelEducativo.values()));
 
-        // Datos de prueba iniciales
         service.guardar(new Escuela("Benito Juárez", NivelEducativo.PREPARATORIA, "CCT-001", "Av. Reforma 10", "450"));
         service.guardar(new Escuela("Miguel Hidalgo", NivelEducativo.PRIMARIA, "CCT-002", "Calle Independencia 5", "300"));
 
@@ -51,24 +49,33 @@ public class EscuelaController {
         String codigo = txtCodigo.getText().trim();
         NivelEducativo nivel = cbNivel.getValue();
 
-        // Mantenemos alerta de error: campos obligatorios
         if (nivel == null || nombre.isEmpty() || codigo.isEmpty()) {
             mostrarAlerta("Error de Validación", "Nombre, Nivel y Código son campos obligatorios.");
             return;
         }
 
-        // Mantenemos alerta de error: Clave única
         if (service.existeCodigo(codigo)) {
             mostrarAlerta("Error de Duplicado", "La clave '" + codigo + "' ya está registrada.");
             return;
         }
 
-        Escuela nueva = new Escuela(nombre, nivel, codigo, txtDireccion.getText().trim(), txtMatricula.getText().trim());
+        Escuela nueva = new Escuela(
+                nombre,
+                nivel,
+                codigo,
+                txtDireccion.getText().trim(),
+                txtMatricula.getText().trim()
+        );
+        System.out.println("Escuela registrada:");
+        System.out.println("Nombre: " + nueva.getNombre());
+        System.out.println("Código: " + nueva.getCodigo());
+        System.out.println("Nivel: " + nueva.getNivel());
+        System.out.println("Dirección: " + nueva.getDireccion());
+        System.out.println("Matrícula: " + nueva.getMatricula());
 
         service.guardar(nueva);
         actualizarTablaCompleta();
         limpiarFormulario();
-        // SE ELIMINÓ: Alerta de "Escuela registrada correctamente"
     }
 
     @FXML
@@ -77,9 +84,7 @@ public class EscuelaController {
         if (seleccionada != null) {
             service.eliminar(seleccionada);
             actualizarTablaCompleta();
-            // SE ELIMINÓ: Alerta de "Registro eliminado"
         } else {
-            // Mantenemos advertencia para que el usuario sepa que debe seleccionar una fila
             mostrarAlerta("Advertencia", "Por favor, seleccione una escuela de la tabla para eliminar.");
         }
     }
@@ -89,7 +94,6 @@ public class EscuelaController {
         NivelEducativo nivelSeleccionado = cbNivel.getValue();
         if (nivelSeleccionado != null) {
             obsList.setAll(service.filtrarPorNivel(nivelSeleccionado));
-            // SE ELIMINÓ: Alerta de "Sin resultados"
         } else {
             mostrarAlerta("Aviso", "Seleccione un nivel en el ComboBox para poder filtrar.");
         }
