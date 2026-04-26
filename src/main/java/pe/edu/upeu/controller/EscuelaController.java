@@ -50,22 +50,23 @@ public class EscuelaController {
         NivelEducativo nivel = cbNivel.getValue();
 
         if (nivel == null || nombre.isEmpty() || codigo.isEmpty()) {
-            mostrarAlerta("Error de Validación", "Nombre, Nivel y Código son campos obligatorios.");
+            System.out.println("Error: Nombre, Nivel y Código son obligatorios");
             return;
         }
 
         if (service.existeCodigo(codigo)) {
-            mostrarAlerta("Error de Duplicado", "La clave '" + codigo + "' ya está registrada.");
+            System.out.println("Error: Código duplicado -> " + codigo);
             return;
         }
 
-        Escuela nueva = new Escuela(
-                nombre,
-                nivel,
-                codigo,
-                txtDireccion.getText().trim(),
-                txtMatricula.getText().trim()
-        );
+        Escuela nueva = new Escuela("", null, "", "", "");
+
+        nueva.setNombre(nombre);
+        nueva.setNivel(nivel);
+        nueva.setCodigo(codigo);
+        nueva.setDireccion(txtDireccion.getText().trim());
+        nueva.setMatricula(txtMatricula.getText().trim());
+
         System.out.println("Escuela registrada:");
         System.out.println("Nombre: " + nueva.getNombre());
         System.out.println("Código: " + nueva.getCodigo());
@@ -85,7 +86,7 @@ public class EscuelaController {
             service.eliminar(seleccionada);
             actualizarTablaCompleta();
         } else {
-            mostrarAlerta("Advertencia", "Por favor, seleccione una escuela de la tabla para eliminar.");
+            System.out.println("Seleccione una escuela para eliminar");
         }
     }
 
@@ -95,7 +96,7 @@ public class EscuelaController {
         if (nivelSeleccionado != null) {
             obsList.setAll(service.filtrarPorNivel(nivelSeleccionado));
         } else {
-            mostrarAlerta("Aviso", "Seleccione un nivel en el ComboBox para poder filtrar.");
+            System.out.println("Seleccione un nivel para filtrar");
         }
     }
 
@@ -115,13 +116,5 @@ public class EscuelaController {
         txtDireccion.clear();
         txtMatricula.clear();
         cbNivel.getSelectionModel().clearSelection();
-    }
-
-    private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }
