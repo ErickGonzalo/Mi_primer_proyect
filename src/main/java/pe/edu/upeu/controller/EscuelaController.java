@@ -5,8 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import pe.edu.upeu.model.Escuela;
 import pe.edu.upeu.enums.NivelEducativo;
+import pe.edu.upeu.model.Escuela;
 import pe.edu.upeu.service.EscuelaService;
 
 public class EscuelaController {
@@ -14,14 +14,19 @@ public class EscuelaController {
     @FXML private TextField txtNombre, txtCodigo, txtDireccion, txtMatricula;
     @FXML private ComboBox<NivelEducativo> cbNivel;
     @FXML private TableView<Escuela> tabla;
-    @FXML private TableColumn<Escuela, String> colNombre, colCodigo, colDireccion, colMatricula;
+
+    @FXML private TableColumn<Escuela, String> colNombre, colCodigo, colDireccion;
     @FXML private TableColumn<Escuela, NivelEducativo> colNivel;
+    @FXML private TableColumn<Escuela, Integer> colMatricula;
 
     private EscuelaService service = new EscuelaService();
     private ObservableList<Escuela> obsList = FXCollections.observableArrayList();
 
+    private Escuela escuelaSeleccionada = null;
+
     @FXML
     public void initialize() {
+
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colNivel.setCellValueFactory(new PropertyValueFactory<>("nivel"));
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
@@ -30,91 +35,96 @@ public class EscuelaController {
 
         cbNivel.setItems(FXCollections.observableArrayList(NivelEducativo.values()));
 
-        service.guardar(new Escuela("Benito Juárez", NivelEducativo.PREPARATORIA, "CCT-001", "Av. Reforma 10", "450"));
-        service.guardar(new Escuela("Miguel Hidalgo", NivelEducativo.PRIMARIA, "CCT-002", "Calle Independencia 5", "300"));
-
-        actualizarTablaCompleta();
         tabla.setItems(obsList);
+
+        tabla.setOnMouseClicked(e -> {
+            Escuela sel = tabla.getSelectionModel().getSelectedItem();
+            if (sel != null) {
+                escuelaSeleccionada = sel;
+
+                txtNombre.setText(sel.getNombre());
+                txtCodigo.setText(sel.getCodigo());
+                txtDireccion.setText(sel.getDireccion());
+                txtMatricula.setText(String.valueOf(sel.getMatricula()));
+                cbNivel.setValue(sel.getNivel());
+            }
+        });
+
+        actualizarTabla();
     }
 
-    @FXML
-    private void btnNuevo() {
-        limpiarFormulario();
-        txtNombre.requestFocus();
+    @FXML public void btnNuevo() {
+        limpiar();
     }
 
-    @FXML
-    private void btnGuardar() {
+    @FXML public void btnGuardar() {
+
         String nombre = txtNombre.getText().trim();
         String codigo = txtCodigo.getText().trim();
+        String direccion = txtDireccion.getText().trim();
         NivelEducativo nivel = cbNivel.getValue();
 
-        if (nivel == null || nombre.isEmpty() || codigo.isEmpty()) {
-            System.out.println("Error: Nombre, Nivel y Código son obligatorios");
-            return;
-        }
+        int matricula = Integer.parseInt(txtMatricula.getText());
 
-        if (service.existeCodigo(codigo)) {
-            System.out.println("Error: Código duplicado -> " + codigo);
-            return;
-        }
+        if (escuelaSeleccionada == null) {
+            if (service.existeCodigo(codigo)) {
+                alerta("Código duplicado");
+                return;
+            }
 
-        Escuela nueva = new Escuela("", null, "", "", "");
+            service.guardar(new Escuela(nombre, nivel, codigo, direccion, matricula));
 
-        nueva.setNombre(nombre);
-        nueva.setNivel(nivel);
-        nueva.setCodigo(codigo);
-        nueva.setDireccion(txtDireccion.getText().trim());
-        nueva.setMatricula(txtMatricula.getText().trim());
-
-        System.out.println("Escuela registrada:");
-        System.out.println("Nombre: " + nueva.getNombre());
-        System.out.println("Código: " + nueva.getCodigo());
-        System.out.println("Nivel: " + nueva.getNivel());
-        System.out.println("Dirección: " + nueva.getDireccion());
-        System.out.println("Matrícula: " + nueva.getMatricula());
-
-        service.guardar(nueva);
-        actualizarTablaCompleta();
-        limpiarFormulario();
-    }
-
-    @FXML
-    private void btnEliminar() {
-        Escuela seleccionada = tabla.getSelectionModel().getSelectedItem();
-        if (seleccionada != null) {
-            service.eliminar(seleccionada);
-            actualizarTablaCompleta();
         } else {
-            System.out.println("Seleccione una escuela para eliminar");
+
+            String nuevoCodigo = txtCodigo.getText();
+
+            escuelaSeleccionada.setNombre(nombre);
+            escuelaSeleccionada.setNivel(nivel);
+            escuelaSeleccionada.setDireccion(direccion);
+            escuelaSeleccionada.setMatricula(matricula);
+
+            // escuelaSeleccionada.setCodigo(...);
+
+
+            escuelaSeleccionada.setCodigo(nuevoCodigo);
+
+            service.actualizar(escuelaSeleccionada);
+        }
+
+        actualizarTabla();
+        limpiar();
+    }
+
+    @FXML public void btnEliminar() {
+        Escuela sel = tabla.getSelectionModel().getSelectedItem();
+        if (sel != null) {
+            service.eliminar(sel);
+            actualizarTabla();
         }
     }
 
-    @FXML
-    private void btnFiltrar() {
-        NivelEducativo nivelSeleccionado = cbNivel.getValue();
-        if (nivelSeleccionado != null) {
-            obsList.setAll(service.filtrarPorNivel(nivelSeleccionado));
-        } else {
-            System.out.println("Seleccione un nivel para filtrar");
-        }
+    @FXML public void btnFiltrar() {
+        obsList.setAll(service.filtrarPorNivel(cbNivel.getValue()));
     }
 
-    @FXML
-    private void btnListarTodo() {
-        actualizarTablaCompleta();
-        cbNivel.getSelectionModel().clearSelection();
+    @FXML public void btnListarTodo() {
+        actualizarTabla();
     }
 
-    private void actualizarTablaCompleta() {
+    private void actualizarTabla() {
         obsList.setAll(service.listarTodo());
     }
 
-    private void limpiarFormulario() {
+    private void limpiar() {
         txtNombre.clear();
         txtCodigo.clear();
         txtDireccion.clear();
         txtMatricula.clear();
         cbNivel.getSelectionModel().clearSelection();
+        escuelaSeleccionada = null;
+    }
+
+    private void alerta(String msg) {
+        new Alert(Alert.AlertType.WARNING, msg).showAndWait();
     }
 }

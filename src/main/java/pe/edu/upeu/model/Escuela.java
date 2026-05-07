@@ -2,29 +2,29 @@ package pe.edu.upeu.model;
 
 import pe.edu.upeu.enums.NivelEducativo;
 
-public class Escuela {
-    private String nombre;
+public class Escuela extends EntidadEducativa {
+
+    private int id;
     private NivelEducativo nivel;
     private String codigo;
-    private String direccion;
-    private String matricula;
+    private int matricula;
 
-    public Escuela(String nombre, NivelEducativo nivel, String codigo, String direccion, String matricula) {
-        this.nombre = nombre;
+    public Escuela(String nombre, NivelEducativo nivel, String codigo, String direccion, int matricula) {
+        super(nombre, direccion);
         this.nivel = nivel;
         this.codigo = codigo;
-        this.direccion = direccion;
         this.matricula = matricula;
     }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
     public NivelEducativo getNivel() { return nivel; }
     public void setNivel(NivelEducativo nivel) { this.nivel = nivel; }
+
     public String getCodigo() { return codigo; }
     public void setCodigo(String codigo) { this.codigo = codigo; }
-    public String getDireccion() { return direccion; }
-    public void setDireccion(String direccion) { this.direccion = direccion; }
-    public String getMatricula() { return matricula; }
-    public void setMatricula(String matricula) { this.matricula = matricula; }
+
+    public int getMatricula() { return matricula; }
+    public void setMatricula(int matricula) { this.matricula = matricula; }
 }
